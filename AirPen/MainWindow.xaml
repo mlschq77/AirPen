@@ -193,16 +193,13 @@
 
                 <Border Grid.Row="1" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
                     <Grid>
+                        <!-- Płynny, niezawodny natywny InkCanvas -->
                         <InkCanvas x:Name="SignatureCanvas" Background="Transparent" StrokeCollected="SignatureCanvas_StrokeCollected">
                             <InkCanvas.DefaultDrawingAttributes>
                                 <DrawingAttributes Color="#18212F" Width="3" Height="3" FitToCurve="True"/>
                             </InkCanvas.DefaultDrawingAttributes>
                         </InkCanvas>
                         <TextBlock x:Name="CanvasHint" Text="Podpisz się tutaj" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
-
-                        <Canvas IsHitTestVisible="False">
-                            <Ellipse x:Name="VirtualPointer" Width="10" Height="10" Fill="{StaticResource AccentBrush}" Opacity="0.75" Margin="-5,-5,0,0" Visibility="Collapsed"/>
-                        </Canvas>
                     </Grid>
                 </Border>
 
