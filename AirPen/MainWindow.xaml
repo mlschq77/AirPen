@@ -141,9 +141,9 @@
                     <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="24">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <Grid.RowDefinition Height="Auto"/>
-                                <Grid.RowDefinition Height="*"/>
-                                <Grid.RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock Text="Podpis na żywo" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}"/>
@@ -166,7 +166,6 @@
                                                     <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.45" To="1" Duration="0:0:0.9"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
-                                            </BeginStoryboard>
                                         </EventTrigger>
                                     </Ellipse.Triggers>
                                 </Ellipse>
@@ -181,9 +180,9 @@
                         <TranslateTransform/>
                     </Grid.RenderTransform>
                     <Grid.RowDefinitions>
-                        <Grid.RowDefinition Height="Auto"/>
-                        <Grid.RowDefinition Height="*"/>
-                        <Grid.RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <DockPanel Grid.Row="0" Margin="0,0,0,16">
@@ -259,8 +258,8 @@
                         <TranslateTransform/>
                     </Grid.RenderTransform>
                     <Grid.RowDefinitions>
-                        <Grid.RowDefinition Height="Auto"/>
-                        <Grid.RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
                     <DockPanel Grid.Row="0" Margin="0,0,0,16">
@@ -300,11 +299,8 @@
                         <TranslateTransform/>
                     </Grid.RenderTransform>
                     <Grid.RowDefinitions>
-                        <Grid.RowDefinition Height="Auto"/>
-                        <Window.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Window.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
                     <DockPanel Grid.Row="0" Margin="0,0,0,16">
@@ -320,7 +316,7 @@
 
                         <Border Grid.Column="0" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
                             <Grid>
-                                <Canvas x:Name="GestureGuideCanvas" Visibility="Collapsed"/>
+                                <Canvas x:Name="GestureGuideCanvas" Visibility="Visible" IsHitTestVisible="False"/>
                                 <InkCanvas x:Name="GestureCanvas" Background="Transparent" StrokeCollected="GestureCanvas_StrokeCollected" PreviewMouseLeftButtonDown="SamplingCanvas_MouseLeftButtonDown" PreviewMouseLeftButtonUp="SamplingCanvas_MouseLeftButtonUp" MouseLeave="SamplingCanvas_MouseLeave"/>
                                 <TextBlock x:Name="GestureCanvasHint" Text="Narysuj ten sam gest 3 razy" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
                             </Grid>
@@ -379,21 +375,20 @@
                     </Border>
                 </Grid>
             </Grid>
-
-            <Grid x:Name="ResultPopupOverlay" Visibility="Collapsed" Background="#5018212F">
-                <Border Background="White" CornerRadius="16" Width="460" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="28" Effect="{StaticResource SoftShadow}">
-                    <StackPanel>
-                        <Ellipse Width="48" Height="48" Fill="#E7EEF6" HorizontalAlignment="Center" Margin="0,0,0,16">
-                        </Ellipse>
-                        <TextBlock x:Name="PopupTitleText" Text="Analiza Ukończona" FontSize="22" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,14" HorizontalAlignment="Center"/>
-
-                        <Border Background="#F8FAFC" CornerRadius="10" Padding="16" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Margin="0,0,0,22">
-                            <TextBlock x:Name="PopupBodyText" Text="Szczegóły..." FontSize="14" LineHeight="22" TextWrapping="Wrap" Foreground="{StaticResource InkTextBrush}"/>
-                        </Border>
-
-                        <Button Content="Rozumiem" Width="140" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Center" Click="ClosePopup_Click"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
         </Grid>
+
+        <Grid x:Name="ResultPopupOverlay" Visibility="Collapsed" Background="#5018212F">
+            <Border Background="White" CornerRadius="16" Width="460" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="28" Effect="{StaticResource SoftShadow}">
+                <StackPanel>
+                    <TextBlock x:Name="PopupTitleText" Text="Analiza Ukończona" FontSize="22" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+
+                    <Border Background="#F8FAFC" CornerRadius="10" Padding="16" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Margin="0,0,0,22">
+                        <TextBlock x:Name="PopupBodyText" Text="Szczegóły..." FontSize="14" LineHeight="22" TextWrapping="Wrap" Foreground="{StaticResource InkTextBrush}"/>
+                    </Border>
+
+                    <Button Content="Rozumiem" Width="140" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Center" Click="ClosePopup_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
 </Window>
