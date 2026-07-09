@@ -116,6 +116,7 @@
         <Border Background="#F8FBFF" CornerRadius="18" Effect="{StaticResource SoftShadow}"/>
 
         <Grid Margin="24">
+            <!-- MENU GŁÓWNE -->
             <Grid x:Name="MenuGrid" Visibility="Visible" Opacity="1">
                 <Grid.RenderTransform>
                     <TranslateTransform/>
@@ -174,6 +175,7 @@
                 </Border>
             </Grid>
 
+            <!-- PANEL PISANIA -->
             <Grid x:Name="WriteGrid" Visibility="Collapsed" Opacity="0">
                 <Grid.RenderTransform>
                     <TranslateTransform/>
@@ -199,7 +201,7 @@
                         <TextBlock x:Name="CanvasHint" Text="Podpisz się tutaj" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
 
                         <Canvas IsHitTestVisible="False">
-                            <Ellipse x:Name="VirtualPointer" Width="10" Height="10" Fill="{StaticResource AccentBrush}" Opacity="0.6" Margin="-5,-5,0,0" Visibility="Collapsed"/>
+                            <Ellipse x:Name="VirtualPointer" Width="10" Height="10" Fill="{StaticResource AccentBrush}" Opacity="0.75" Margin="-5,-5,0,0" Visibility="Collapsed"/>
                         </Canvas>
                     </Grid>
                 </Border>
@@ -249,6 +251,7 @@
                 </Border>
             </Grid>
 
+            <!-- TEST DRŻENIA -->
             <Grid x:Name="TremorTestGrid" Visibility="Collapsed" Opacity="0">
                 <Grid.RenderTransform>
                     <TranslateTransform/>
@@ -290,6 +293,7 @@
                 </Grid>
             </Grid>
 
+            <!-- TEST GESTU -->
             <Grid x:Name="GestureTestGrid" Visibility="Collapsed" Opacity="0">
                 <Grid.RenderTransform>
                     <TranslateTransform/>
@@ -331,6 +335,7 @@
                 </Grid>
             </Grid>
 
+            <!-- PRZEGLĄDARKA -->
             <Grid x:Name="BrowseGrid" Visibility="Collapsed" Opacity="0">
                 <Grid.RenderTransform>
                     <TranslateTransform/>
@@ -352,6 +357,7 @@
                 </ScrollViewer>
             </Grid>
 
+            <!-- SZCZEGÓŁY -->
             <Grid x:Name="DetailGrid" Visibility="Collapsed" Opacity="0">
                 <Grid.RenderTransform>
                     <TranslateTransform/>

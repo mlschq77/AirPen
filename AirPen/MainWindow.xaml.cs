@@ -37,10 +37,12 @@ namespace AirPen
 
         private Color currentPenColor = (Color)ColorConverter.ConvertFromString("#18212F");
         private double currentPenSize = 3;
+
+        // Zmienne Wirtualnego Długopisu
         private bool isVirtualDrawing = false;
+        private bool hasStartedWriting = false; // <-- FLAG UWALNIAJĄCA BESTIĘ
         private Point virtualPenPosition;
         private Stroke? currentVirtualStroke;
-
         private Point lastMousePos;
         private bool isRecentering = false;
 
@@ -57,7 +59,6 @@ namespace AirPen
             UpdateSelectedColorButton(ColorBlackButton);
             UpdateSelectedPenSizeButton(PenSizeSmallButton);
 
-            // Powiązanie zdarzeń Wirtualnego Pióra z obsługą ukrywania kursora systemowego
             SignatureCanvas.EditingMode = InkCanvasEditingMode.None;
             SignatureCanvas.MouseEnter += SignatureCanvas_MouseEnter;
             SignatureCanvas.MouseLeave += SignatureCanvas_MouseLeave;
@@ -69,22 +70,22 @@ namespace AirPen
         }
 
         // ==========================================
-        // 1. LOGIKA WIRTUALNEGO PIÓRA (Kropka zamiast kursora)
+        // 1. LOGIKA WIRTUALNEGO PIÓRA (Symbioza)
         // ==========================================
         private void SignatureCanvas_MouseEnter(object sender, MouseEventArgs e)
         {
-            // Całkowicie wyłączamy kursor systemowy
+            // Na płótnie systemowy kursor całkowicie znika
             Mouse.OverrideCursor = Cursors.None;
-
-            if (VirtualPointer != null)
-                VirtualPointer.Visibility = Visibility.Visible;
+            if (VirtualPointer != null) VirtualPointer.Visibility = Visibility.Visible;
 
             lastMousePos = SignatureCanvas.PointToScreen(e.GetPosition(SignatureCanvas));
 
-            // Przy pierwszym wjechaniu na czyste płótno, ustawiamy kropkę w miejscu kursora
-            if (SignatureCanvas.Strokes.Count == 0 && !isVirtualDrawing)
+            if (!hasStartedWriting)
             {
-                virtualPenPosition = e.GetPosition(SignatureCanvas);
+                // Przed rozpoczęciem pisania kropka jest uwięziona na płótnie
+                Point canvasPos = e.GetPosition(SignatureCanvas);
+                virtualPenPosition.X = Math.Clamp(canvasPos.X, 0, SignatureCanvas.ActualWidth);
+                virtualPenPosition.Y = Math.Clamp(canvasPos.Y, 0, SignatureCanvas.ActualHeight);
             }
 
             if (VirtualPointer != null)
@@ -96,7 +97,7 @@ namespace AirPen
 
         private void SignatureCanvas_MouseLeave(object sender, MouseEventArgs e)
         {
-            // Przywracamy kursor Windowsa tylko jeśli użytkownik fizycznie zjechał i nie rysuje
+            // Jeśli nie piszesz, kursor wraca do normy (np. żeby wyklikać kolory w opcjach)
             if (!isVirtualDrawing)
             {
                 Mouse.OverrideCursor = null;
@@ -106,10 +107,13 @@ namespace AirPen
 
         private void VirtualPen_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            isVirtualDrawing = true;
-            SignatureCanvas.CaptureMouse();
+            if (e.ChangedButton != MouseButton.Left) return;
 
-            // Punktem startowym linii staje się aktualna pozycja niebieskiej kropki
+            isVirtualDrawing = true;
+            hasStartedWriting = true; // ZDJĘCIE BLOKADY! Nieskończone płótno aktywowane.
+            SignatureCanvas.CaptureMouse();
+            lastMousePos = SignatureCanvas.PointToScreen(e.GetPosition(SignatureCanvas));
+
             StylusPointCollection points = new StylusPointCollection();
             points.Add(new StylusPoint(virtualPenPosition.X, virtualPenPosition.Y));
 
@@ -121,7 +125,6 @@ namespace AirPen
 
         private void VirtualPen_MouseMove(object sender, MouseEventArgs e)
         {
-            // Ignorujemy przesunięcia wynikające z wymuszonej teleportacji na środek
             if (isRecentering)
             {
                 isRecentering = false;
@@ -135,48 +138,70 @@ namespace AirPen
             double deltaX = currentScreenPos.X - lastMousePos.X;
             double deltaY = currentScreenPos.Y - lastMousePos.Y;
 
-            if (Math.Abs(deltaX) > 0 || Math.Abs(deltaY) > 0)
+            if (!hasStartedWriting)
             {
-                // Aktualizacja koordynatów wirtualnej kropki
-                virtualPenPosition.X += deltaX;
-                virtualPenPosition.Y += deltaY;
-
-                // Jeśli przycisk myszy/nadajnika jest wciśnięty - piszemy
-                if (isVirtualDrawing && currentVirtualStroke != null)
-                {
-                    currentVirtualStroke.StylusPoints.Add(new StylusPoint(virtualPenPosition.X, virtualPenPosition.Y));
-                }
+                // TRYB 1: Zablokowana kropka na ekranie
+                Point canvasPos = e.GetPosition(SignatureCanvas);
+                virtualPenPosition.X = Math.Clamp(canvasPos.X, 0, SignatureCanvas.ActualWidth);
+                virtualPenPosition.Y = Math.Clamp(canvasPos.Y, 0, SignatureCanvas.ActualHeight);
 
                 Canvas.SetLeft(VirtualPointer, virtualPenPosition.X);
                 Canvas.SetTop(VirtualPointer, virtualPenPosition.Y);
-
-                // Dyskretne centrowanie fizycznego kursora w tle, gdy ucieka zbyt daleko od osi
-                Point windowCenter = SignatureCanvas.PointToScreen(new Point(SignatureCanvas.ActualWidth / 2, SignatureCanvas.ActualHeight / 2));
-                double distFromCenter = Math.Sqrt(Math.Pow(currentScreenPos.X - windowCenter.X, 2) + Math.Pow(currentScreenPos.Y - windowCenter.Y, 2));
-
-                if (distFromCenter > 150)
+                lastMousePos = currentScreenPos;
+            }
+            else
+            {
+                // TRYB 2: Nieskończone płótno (podczas pisania i w powietrzu)
+                if (Math.Abs(deltaX) > 0 || Math.Abs(deltaY) > 0)
                 {
-                    isRecentering = true;
-                    SetCursorPos((int)windowCenter.X, (int)windowCenter.Y);
-                }
-                else
-                {
-                    lastMousePos = currentScreenPos;
+                    virtualPenPosition.X += deltaX;
+                    virtualPenPosition.Y += deltaY;
+
+                    if (isVirtualDrawing && currentVirtualStroke != null)
+                    {
+                        currentVirtualStroke.StylusPoints.Add(new StylusPoint(virtualPenPosition.X, virtualPenPosition.Y));
+                    }
+
+                    Canvas.SetLeft(VirtualPointer, virtualPenPosition.X);
+                    Canvas.SetTop(VirtualPointer, virtualPenPosition.Y);
+
+                    // Centrujemy fizyczny kursor TYLKO PODCZAS RYSOWANIA, by dać ESP32 nieskończoną drogę
+                    if (isVirtualDrawing)
+                    {
+                        Point windowCenter = SignatureCanvas.PointToScreen(new Point(SignatureCanvas.ActualWidth / 2, SignatureCanvas.ActualHeight / 2));
+                        double distFromCenter = Math.Sqrt(Math.Pow(currentScreenPos.X - windowCenter.X, 2) + Math.Pow(currentScreenPos.Y - windowCenter.Y, 2));
+
+                        if (distFromCenter > 100)
+                        {
+                            isRecentering = true;
+                            SetCursorPos((int)windowCenter.X, (int)windowCenter.Y);
+                        }
+                        else
+                        {
+                            lastMousePos = currentScreenPos;
+                        }
+                    }
+                    else
+                    {
+                        lastMousePos = currentScreenPos;
+                    }
                 }
             }
         }
 
         private void VirtualPen_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            isVirtualDrawing = false;
-            currentVirtualStroke = null;
-            SignatureCanvas.ReleaseMouseCapture();
-
-            // Jeśli użytkownik puścił przycisk poza płótnem, oddaj kursor systemowy
-            if (!SignatureCanvas.IsMouseOver)
+            if (e.ChangedButton == MouseButton.Left && isVirtualDrawing)
             {
-                Mouse.OverrideCursor = null;
-                if (VirtualPointer != null) VirtualPointer.Visibility = Visibility.Collapsed;
+                isVirtualDrawing = false;
+                currentVirtualStroke = null;
+                SignatureCanvas.ReleaseMouseCapture();
+
+                if (!SignatureCanvas.IsMouseOver)
+                {
+                    Mouse.OverrideCursor = null;
+                    if (VirtualPointer != null) VirtualPointer.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -185,6 +210,7 @@ namespace AirPen
         // ==========================================
         private void ShowWriteGrid_Click(object sender, RoutedEventArgs e)
         {
+            hasStartedWriting = false; // Reset logiki
             ShowView(WriteGrid);
             SignatureCanvas.Strokes.Clear();
             if (VirtualPointer != null) VirtualPointer.Visibility = Visibility.Collapsed;
@@ -213,7 +239,7 @@ namespace AirPen
 
         private void BackToMenu_Click(object? sender, RoutedEventArgs? e)
         {
-            Mouse.OverrideCursor = null; // Awaryjne przywrócenie kursora przy powrocie
+            Mouse.OverrideCursor = null;
             ShowView(MenuGrid);
         }
 
@@ -227,6 +253,7 @@ namespace AirPen
         // ==========================================
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
+            hasStartedWriting = false; // Reset logiki po wyczyszczeniu
             SignatureCanvas.Strokes.Clear();
             if (VirtualPointer != null) VirtualPointer.Visibility = Visibility.Collapsed;
             UpdateCanvasHint();
@@ -277,6 +304,7 @@ namespace AirPen
                     encoder.Save(fileStream);
                 }
 
+                hasStartedWriting = false; // Reset po pomyślnym zapisie
                 MessageBox.Show("Podpis został wycięty i zapisany!", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
                 BackToMenu_Click(null, null);
             }
@@ -431,7 +459,7 @@ namespace AirPen
                 Color = color,
                 Width = 3,
                 Height = 3,
-                FitToCurve = false, // Całkowicie surowe linie bez wygładzania dla poprawnych analiz
+                FitToCurve = false,
                 StylusTip = System.Windows.Ink.StylusTip.Ellipse
             };
         }
@@ -693,7 +721,6 @@ namespace AirPen
             double averageSpeedInstability = metrics.Average(m => m.SpeedInstability);
             double averageTurns = metrics.Average(m => m.DirectionNoise);
 
-            // Surowe i rygorystyczne kary za bazgrolenie
             double penalty = Math.Clamp(averageJitter * 5.0 + averageSpeedInstability * 50.0 + averageTurns * 20.0, 0, 100);
             double stabilityScore = 100 - penalty;
 
@@ -719,8 +746,6 @@ namespace AirPen
             double jitterCv = CoefficientOfVariation(metrics.Select(m => m.Jitter));
 
             double mismatch = lengthCv * 0.35 + durationCv * 0.30 + speedCv * 0.35 + jitterCv * 0.20;
-
-            // Ostra degradacja wyniku w przypadku chaosu (mnożnik 250 zamiast 100)
             double consistency = Math.Clamp(100 - (mismatch * 250), 0, 100);
 
             string level = consistency >= 85 ? "wysoka" : consistency >= 50 ? "średnia" : "bardzo niska";
