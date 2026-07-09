@@ -18,19 +18,12 @@ namespace AirPen
 {
     public partial class MainWindow : Window
     {
-        // ------------------------------------------------------------------
-        // Import z Windows API do centrowania kursora (Długopis Wirtualny)
-        // ------------------------------------------------------------------
         [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
-        // ------------------------------------------------------------------
-        // ZMIENNE GŁÓWNE
-        // ------------------------------------------------------------------
         private readonly string folderPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Signatures"));
         private readonly Duration viewAnimationDuration = new Duration(TimeSpan.FromMilliseconds(220));
 
-        // Zmienne do Testów Biometrycznych
         private readonly DispatcherTimer samplingTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(10) };
         private readonly Stopwatch samplingStopwatch = new Stopwatch();
         private readonly List<List<MotionPoint>> tremorStepSamples = new List<List<MotionPoint>>();
@@ -42,20 +35,19 @@ namespace AirPen
         private int tremorStepIndex;
         private int currentGesturePatternIndex;
 
-        // Zmienne do Wirtualnego Pióra (Nieskończone Płótno)
         private Color currentPenColor = (Color)ColorConverter.ConvertFromString("#18212F");
         private double currentPenSize = 3;
         private bool isVirtualDrawing = false;
-        private bool isFirstStroke = true;
         private Point virtualPenPosition;
         private Stroke? currentVirtualStroke;
-        private Point screenCenter;
+
+        private Point lastMousePos;
+        private bool isRecentering = false;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            // Inicjalizacja logiki Biometrycznej
             samplingTimer.Tick += SamplingTimer_Tick;
             TremorGuideCanvas.SizeChanged += (s, e) => DrawTremorGuide();
             GestureGuideCanvas.SizeChanged += (s, e) => DrawGestureGuide();
@@ -65,8 +57,7 @@ namespace AirPen
             UpdateSelectedColorButton(ColorBlackButton);
             UpdateSelectedPenSizeButton(PenSizeSmallButton);
 
-            // Inicjalizacja Wirtualnego Pióra na głównym obszarze podpisu
-            SignatureCanvas.EditingMode = InkCanvasEditingMode.None; // Wyłączamy rysowanie przez Windows
+            SignatureCanvas.EditingMode = InkCanvasEditingMode.None;
             SignatureCanvas.MouseLeftButtonDown += VirtualPen_MouseDown;
             SignatureCanvas.MouseMove += VirtualPen_MouseMove;
             SignatureCanvas.MouseLeftButtonUp += VirtualPen_MouseUp;
@@ -79,32 +70,12 @@ namespace AirPen
         // ==========================================
         private void VirtualPen_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Point currentScreenPos = SignatureCanvas.PointToScreen(e.GetPosition(SignatureCanvas));
-
-            if (screenCenter.X == 0 && screenCenter.Y == 0)
-            {
-                screenCenter = SignatureCanvas.PointToScreen(new Point(SignatureCanvas.ActualWidth / 2, SignatureCanvas.ActualHeight / 2));
-            }
-
-            double deltaX = currentScreenPos.X - screenCenter.X;
-            double deltaY = currentScreenPos.Y - screenCenter.Y;
-
-            if (isFirstStroke || SignatureCanvas.Strokes.Count == 0)
-            {
-                // Zaczynamy z lewej strony, dodając ruch "z powietrza"
-                virtualPenPosition = new Point((SignatureCanvas.ActualWidth * 0.1) + deltaX, (SignatureCanvas.ActualHeight / 2) + deltaY);
-                isFirstStroke = false;
-            }
-            else
-            {
-                // Przesunięcie z momentu gdy długopis był oderwany
-                virtualPenPosition.X += deltaX;
-                virtualPenPosition.Y += deltaY;
-            }
-
             isVirtualDrawing = true;
             SignatureCanvas.CaptureMouse();
             Mouse.OverrideCursor = Cursors.None;
+
+            virtualPenPosition = e.GetPosition(SignatureCanvas);
+            lastMousePos = SignatureCanvas.PointToScreen(e.GetPosition(SignatureCanvas));
 
             StylusPointCollection points = new StylusPointCollection();
             points.Add(new StylusPoint(virtualPenPosition.X, virtualPenPosition.Y));
@@ -112,66 +83,66 @@ namespace AirPen
             currentVirtualStroke = new Stroke(points, SignatureCanvas.DefaultDrawingAttributes);
             SignatureCanvas.Strokes.Add(currentVirtualStroke);
 
-            // Resetujemy fizyczny kursor na środek
-            Point windowCenter = SignatureCanvas.PointToScreen(new Point(SignatureCanvas.ActualWidth / 2, SignatureCanvas.ActualHeight / 2));
-            screenCenter = windowCenter;
-            SetCursorPos((int)screenCenter.X, (int)screenCenter.Y);
+            if (VirtualPointer != null)
+            {
+                VirtualPointer.Visibility = Visibility.Visible;
+                Canvas.SetLeft(VirtualPointer, virtualPenPosition.X);
+                Canvas.SetTop(VirtualPointer, virtualPenPosition.Y);
+            }
 
             UpdateCanvasHint();
         }
 
         private void VirtualPen_MouseMove(object sender, MouseEventArgs e)
         {
+            if (isRecentering)
+            {
+                isRecentering = false;
+                lastMousePos = SignatureCanvas.PointToScreen(e.GetPosition(SignatureCanvas));
+                return;
+            }
+
             if (VirtualPointer == null) return;
             VirtualPointer.Visibility = Visibility.Visible;
 
             Point currentScreenPos = SignatureCanvas.PointToScreen(e.GetPosition(SignatureCanvas));
+            double deltaX = currentScreenPos.X - lastMousePos.X;
+            double deltaY = currentScreenPos.Y - lastMousePos.Y;
 
-            if (screenCenter.X == 0 && screenCenter.Y == 0)
+            if (Math.Abs(deltaX) > 0 || Math.Abs(deltaY) > 0)
             {
-                screenCenter = SignatureCanvas.PointToScreen(new Point(SignatureCanvas.ActualWidth / 2, SignatureCanvas.ActualHeight / 2));
-            }
+                virtualPenPosition.X += deltaX;
+                virtualPenPosition.Y += deltaY;
 
-            if (isVirtualDrawing && currentVirtualStroke != null)
-            {
-                double deltaX = currentScreenPos.X - screenCenter.X;
-                double deltaY = currentScreenPos.Y - screenCenter.Y;
-
-                if (Math.Abs(deltaX) > 0 || Math.Abs(deltaY) > 0)
+                if (isVirtualDrawing && currentVirtualStroke != null)
                 {
-                    virtualPenPosition.X += deltaX;
-                    virtualPenPosition.Y += deltaY;
                     currentVirtualStroke.StylusPoints.Add(new StylusPoint(virtualPenPosition.X, virtualPenPosition.Y));
-
-                    SetCursorPos((int)screenCenter.X, (int)screenCenter.Y);
                 }
 
                 Canvas.SetLeft(VirtualPointer, virtualPenPosition.X);
                 Canvas.SetTop(VirtualPointer, virtualPenPosition.Y);
-            }
-            else
-            {
-                // Obliczamy pozycję kółeczka gdy jesteśmy w "powietrzu"
-                double deltaX = currentScreenPos.X - screenCenter.X;
-                double deltaY = currentScreenPos.Y - screenCenter.Y;
 
-                double hoverX = isFirstStroke ? (SignatureCanvas.ActualWidth * 0.1) + deltaX : virtualPenPosition.X + deltaX;
-                double hoverY = isFirstStroke ? (SignatureCanvas.ActualHeight / 2) + deltaY : virtualPenPosition.Y + deltaY;
+                Point windowCenter = SignatureCanvas.PointToScreen(new Point(SignatureCanvas.ActualWidth / 2, SignatureCanvas.ActualHeight / 2));
+                double distFromCenter = Math.Sqrt(Math.Pow(currentScreenPos.X - windowCenter.X, 2) + Math.Pow(currentScreenPos.Y - windowCenter.Y, 2));
 
-                Canvas.SetLeft(VirtualPointer, hoverX);
-                Canvas.SetTop(VirtualPointer, hoverY);
+                if (distFromCenter > 150)
+                {
+                    isRecentering = true;
+                    SetCursorPos((int)windowCenter.X, (int)windowCenter.Y);
+                }
+                else
+                {
+                    lastMousePos = currentScreenPos;
+                }
             }
         }
 
         private void VirtualPen_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (isVirtualDrawing)
-            {
-                isVirtualDrawing = false;
-                currentVirtualStroke = null;
-                SignatureCanvas.ReleaseMouseCapture();
-                Mouse.OverrideCursor = null;
-            }
+            isVirtualDrawing = false;
+            currentVirtualStroke = null;
+            SignatureCanvas.ReleaseMouseCapture();
+            Mouse.OverrideCursor = null;
         }
 
         // ==========================================
@@ -181,7 +152,6 @@ namespace AirPen
         {
             ShowView(WriteGrid);
             SignatureCanvas.Strokes.Clear();
-            isFirstStroke = true;
             if (VirtualPointer != null) VirtualPointer.Visibility = Visibility.Collapsed;
             UpdateCanvasHint();
         }
@@ -222,7 +192,6 @@ namespace AirPen
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             SignatureCanvas.Strokes.Clear();
-            isFirstStroke = true;
             if (VirtualPointer != null) VirtualPointer.Visibility = Visibility.Collapsed;
             UpdateCanvasHint();
         }
@@ -249,24 +218,18 @@ namespace AirPen
                 string fileName = $"Podpis_{DateTime.Now:yyyyMMdd_HHmmss}.png";
                 string fullPath = System.IO.Path.Combine(folderPath, fileName);
 
-                // Pobranie granic narysowanego kształtu (Nawet poza widocznym ekranem!)
                 Rect bounds = SignatureCanvas.Strokes.GetBounds();
-                bounds.Inflate(25, 25); // Dodajemy 25px marginesu dookoła
+                bounds.Inflate(25, 25);
 
-                // Rysujemy podpis idealnie wyśrodkowany za pomocą DrawingVisual
                 DrawingVisual visual = new DrawingVisual();
                 using (DrawingContext dc = visual.RenderOpen())
                 {
-                    // Tło
                     dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, bounds.Width, bounds.Height));
-
-                    // Przesunięcie linii tak, aby ucięty podpis trafiał na (0,0)
                     dc.PushTransform(new TranslateTransform(-bounds.X, -bounds.Y));
                     SignatureCanvas.Strokes.Draw(dc);
                     dc.Pop();
                 }
 
-                // Generowanie pliku PNG
                 RenderTargetBitmap renderBitmap = new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height, 96d, 96d, PixelFormats.Default);
                 renderBitmap.Render(visual);
 
@@ -334,7 +297,6 @@ namespace AirPen
                 StylusTip = System.Windows.Ink.StylusTip.Ellipse
             };
 
-            // Zmieniamy też kolor naszego celownika
             if (VirtualPointer != null)
             {
                 VirtualPointer.Fill = new SolidColorBrush(currentPenColor);
@@ -433,7 +395,7 @@ namespace AirPen
                 Color = color,
                 Width = 3,
                 Height = 3,
-                FitToCurve = true,
+                FitToCurve = false,
                 StylusTip = System.Windows.Ink.StylusTip.Ellipse
             };
         }
@@ -694,19 +656,21 @@ namespace AirPen
             double averageJitter = metrics.Average(m => m.Jitter);
             double averageSpeedInstability = metrics.Average(m => m.SpeedInstability);
             double averageTurns = metrics.Average(m => m.DirectionNoise);
-            double tremorScore = Math.Clamp(averageJitter * 4.0 + averageSpeedInstability * 35.0 + averageTurns * 12.0, 0, 100);
 
-            string level = tremorScore < 30 ? "niski" : tremorScore < 60 ? "umiarkowany" : "podwyższony";
-            string conclusion = tremorScore < 30
-                ? "Ruch wygląda stabilnie w tym krótkim teście."
-                : tremorScore < 60
-                    ? "Widać pewną nieregularność ruchu. Warto powtórzyć test w spokojnych warunkach."
-                    : "Widać wyraźne mikrodrżenia lub niestabilność toru. To sygnał do dalszej obserwacji, nie diagnoza.";
+            double penalty = Math.Clamp(averageJitter * 5.0 + averageSpeedInstability * 50.0 + averageTurns * 20.0, 0, 100);
+            double stabilityScore = 100 - penalty;
+
+            string level = stabilityScore >= 80 ? "bardzo wysoka" : stabilityScore >= 45 ? "przeciętna" : "niska";
+            string conclusion = stabilityScore >= 80
+                ? "Ruch jest pewny, płynny i celowy. Doskonała stabilność."
+                : stabilityScore >= 45
+                    ? "Zauważono lekkie wahania na zakrętach lub zmiany tempa."
+                    : "Wykryto bardzo silne mikrodrżenia i przypadkowe szarpnięcia. Ruch mocno zaburzony.";
 
             TremorResultText.Text =
-                $"Wskaźnik drżenia: {tremorScore:0}/100 ({level}).\n" +
-                $"Mikrofalowanie: {averageJitter:0.0} px, niestabilność prędkości: {averageSpeedInstability:P0}, szarpnięcia kierunku: {averageTurns:0.0}.\n\n" +
-                $"{conclusion}\n\nPrototyp screeningowy: wynik może sugerować poziom stabilności dłoni, ale nie rozpoznaje chorób.";
+                $"Wskaźnik stabilności dłoni: {stabilityScore:0}/100 ({level}).\n" +
+                $"Mikrofalowanie: {averageJitter:0.0} px, niestabilność prędkości: {averageSpeedInstability:P0}, szarpnięcia: {averageTurns:0.0}.\n\n" +
+                $"{conclusion}";
         }
 
         private void AnalyzeGestureTest()
@@ -716,14 +680,16 @@ namespace AirPen
             double durationCv = CoefficientOfVariation(metrics.Select(m => m.DurationMs));
             double speedCv = CoefficientOfVariation(metrics.Select(m => m.AverageSpeed));
             double jitterCv = CoefficientOfVariation(metrics.Select(m => m.Jitter));
-            double mismatch = lengthCv * 0.28 + durationCv * 0.24 + speedCv * 0.28 + jitterCv * 0.20;
-            double consistency = Math.Clamp(100 - mismatch * 100, 0, 100);
-            string level = consistency >= 78 ? "wysoka" : consistency >= 55 ? "średnia" : "niska";
+
+            double mismatch = lengthCv * 0.35 + durationCv * 0.30 + speedCv * 0.35 + jitterCv * 0.20;
+            double consistency = Math.Clamp(100 - (mismatch * 250), 0, 100);
+
+            string level = consistency >= 85 ? "wysoka" : consistency >= 50 ? "średnia" : "bardzo niska";
 
             GestureResultText.Text =
-                $"Powtarzalność gestu: {consistency:0}/100 ({level}).\n" +
-                $"Różnice długości: {lengthCv:P0}, czasu: {durationCv:P0}, tempa: {speedCv:P0}, mikrodrgań: {jitterCv:P0}.\n\n" +
-                "To drugi test biometrii behawioralnej: nie sprawdza samego obrazka, tylko sposób wykonania gestu, czyli dynamikę ruchu kursora.";
+                $"Spójność biometryczna gestu: {consistency:0}/100 ({level}).\n" +
+                $"Różnice: Długość {lengthCv:P0}, Czas {durationCv:P0}, Tempo {speedCv:P0}.\n\n" +
+                (consistency == 0 ? "To nie jest powtarzalny podpis, tylko losowe ruchy. Brak cech biometrycznych." : "Test udany. Analiza dynamiki zapisana.");
         }
 
         private MotionMetrics CalculateMetrics(List<MotionPoint> samples)
