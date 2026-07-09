@@ -112,267 +112,288 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="20">
-        <Border Background="#F8FBFF" CornerRadius="18" Effect="{StaticResource SoftShadow}"/>
+    <Grid>
+        <Grid Margin="20">
+            <Border Background="#F8FBFF" CornerRadius="18" Effect="{StaticResource SoftShadow}"/>
 
-        <Grid Margin="24">
-            <!-- 1. MENU GŁÓWNE -->
-            <Grid x:Name="MenuGrid" Visibility="Visible" Opacity="1">
-                <Grid.RenderTransform>
-                    <TranslateTransform/>
-                </Grid.RenderTransform>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.05*"/>
-                    <ColumnDefinition Width="0.95*"/>
-                </Grid.ColumnDefinitions>
+            <Grid Margin="24">
+                <Grid x:Name="MenuGrid" Visibility="Visible" Opacity="1">
+                    <Grid.RenderTransform>
+                        <TranslateTransform/>
+                    </Grid.RenderTransform>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.05*"/>
+                        <ColumnDefinition Width="0.95*"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="18,0,36,0">
-                    <TextBlock Text="AirPen" FontSize="46" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}"/>
-                    <TextBlock Text="System biometryczny do tworzenia i przeglądania podpisów" FontSize="18" LineHeight="27" TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" Margin="0,10,0,34"/>
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="18,0,36,0">
+                        <TextBlock Text="AirPen" FontSize="46" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}"/>
+                        <TextBlock Text="System biometryczny do tworzenia i przeglądania podpisów" FontSize="18" LineHeight="27" TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" Margin="0,10,0,34"/>
 
-                    <UniformGrid Columns="2" Rows="2" Width="360" HorizontalAlignment="Left">
-                        <Button Content="Napisz podpis" Margin="0,0,12,12" Style="{StaticResource PrimaryButtonStyle}" Click="ShowWriteGrid_Click"/>
-                        <Button Content="Przeglądaj" Margin="0,0,0,12" Style="{StaticResource SecondaryButtonStyle}" Click="ShowBrowseGrid_Click"/>
-                        <Button Content="Test drżenia" Margin="0,0,12,0" Style="{StaticResource SecondaryButtonStyle}" Click="ShowTremorTestGrid_Click"/>
-                        <Button Content="Test gestu" Margin="0,0,0,0" Style="{StaticResource SecondaryButtonStyle}" Click="ShowGestureTestGrid_Click"/>
-                    </UniformGrid>
-                </StackPanel>
+                        <UniformGrid Columns="2" Rows="2" Width="360" HorizontalAlignment="Left">
+                            <Button Content="Napisz podpis" Margin="0,0,12,12" Style="{StaticResource PrimaryButtonStyle}" Click="ShowWriteGrid_Click"/>
+                            <Button Content="Przeglądaj" Margin="0,0,0,12" Style="{StaticResource SecondaryButtonStyle}" Click="ShowBrowseGrid_Click"/>
+                            <Button Content="Test drżenia" Margin="0,0,12,0" Style="{StaticResource SecondaryButtonStyle}" Click="ShowTremorTestGrid_Click"/>
+                            <Button Content="Test gestu" Margin="0,0,0,0" Style="{StaticResource SecondaryButtonStyle}" Click="ShowGestureTestGrid_Click"/>
+                        </UniformGrid>
+                    </StackPanel>
 
-                <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="24">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                    <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="24">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <Grid.RowDefinition Height="Auto"/>
+                                <Grid.RowDefinition Height="*"/>
+                                <Grid.RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                        <TextBlock Text="Podpis na żywo" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}"/>
-                        <Canvas Grid.Row="1" Margin="0,22,0,22">
-                            <Path Stroke="#2563EB" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Opacity="0.9">
-                                <Path.Data>
-                                    <PathGeometry>
-                                        <PathFigure StartPoint="12,120">
-                                            <BezierSegment Point1="80,30" Point2="120,190" Point3="185,92"/>
-                                            <BezierSegment Point1="225,32" Point2="260,148" Point3="330,78"/>
-                                        </PathFigure>
-                                    </PathGeometry>
-                                </Path.Data>
-                            </Path>
-                            <Ellipse Width="16" Height="16" Fill="#14B8A6" Canvas.Left="322" Canvas.Top="70">
-                                <Ellipse.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.45" To="1" Duration="0:0:0.9"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Ellipse.Triggers>
-                            </Ellipse>
-                        </Canvas>
-                        <TextBlock Grid.Row="2" Text="Szybki zapis PNG, czytelna przeglądarka i wygodne narzędzia pisaka." FontSize="13" TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}"/>
-                    </Grid>
-                </Border>
-            </Grid>
+                            <TextBlock Text="Podpis na żywo" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}"/>
+                            <Canvas Grid.Row="1" Margin="0,22,0,22">
+                                <Path Stroke="#2563EB" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Opacity="0.9">
+                                    <Path.Data>
+                                        <PathGeometry>
+                                            <PathFigure StartPoint="12,120">
+                                                <BezierSegment Point1="80,30" Point2="120,190" Point3="185,92"/>
+                                                <BezierSegment Point1="225,32" Point2="260,148" Point3="330,78"/>
+                                            </PathFigure>
+                                        </PathGeometry>
+                                    </Path.Data>
+                                </Path>
+                                <Ellipse Width="16" Height="16" Fill="#14B8A6" Canvas.Left="322" Canvas.Top="70">
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.45" To="1" Duration="0:0:0.9"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                            </Canvas>
+                            <TextBlock Grid.Row="2" Text="Szybki zapis PNG, czytelna przeglądarka i wygodne narzędzia pisaka." FontSize="13" TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
 
-            <!-- 2. PANEL PISANIA -->
-            <Grid x:Name="WriteGrid" Visibility="Collapsed" Opacity="0">
-                <Grid.RenderTransform>
-                    <TranslateTransform/>
-                </Grid.RenderTransform>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                <Grid x:Name="WriteGrid" Visibility="Collapsed" Opacity="0">
+                    <Grid.RenderTransform>
+                        <TranslateTransform/>
+                    </Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <Grid.RowDefinition Height="Auto"/>
+                        <Grid.RowDefinition Height="*"/>
+                        <Grid.RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <DockPanel Grid.Row="0" Margin="0,0,0,16">
-                    <Button Content="Wróć" Width="92" HorizontalAlignment="Left" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
-                    <TextBlock Text="Nowy podpis" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
-                </DockPanel>
+                    <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                        <Button Content="Wróć" Width="92" HorizontalAlignment="Left" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
+                        <TextBlock Text="Nowy podpis" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
+                    </DockPanel>
 
-                <Border Grid.Row="1" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
-                    <Grid>
-                        <!-- Klasyczny, niezawodny InkCanvas. Pisze gładko i bez błędów. -->
-                        <InkCanvas x:Name="SignatureCanvas" Background="Transparent" StrokeCollected="SignatureCanvas_StrokeCollected">
-                            <InkCanvas.DefaultDrawingAttributes>
-                                <DrawingAttributes Color="#18212F" Width="3" Height="3" FitToCurve="True"/>
-                            </InkCanvas.DefaultDrawingAttributes>
-                        </InkCanvas>
-                        <TextBlock x:Name="CanvasHint" Text="Podpisz się tutaj" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
-                    </Grid>
-                </Border>
+                    <Border Grid.Row="1" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
+                        <Grid>
+                            <InkCanvas x:Name="SignatureCanvas" Background="Transparent" StrokeCollected="SignatureCanvas_StrokeCollected">
+                                <InkCanvas.DefaultDrawingAttributes>
+                                    <DrawingAttributes Color="#18212F" Width="3" Height="3" FitToCurve="True"/>
+                                </InkCanvas.DefaultDrawingAttributes>
+                            </InkCanvas>
+                            <TextBlock x:Name="CanvasHint" Text="Podpisz się tutaj" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
+                        </Grid>
+                    </Border>
 
-                <Border Grid.Row="2" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="14" Margin="0,16,0,0">
-                    <Grid>
+                    <Border Grid.Row="2" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="14" Margin="0,16,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Kolor" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,12,0"/>
+                                <Button x:Name="ColorBlackButton" Background="#18212F" Style="{StaticResource ColorButtonStyle}" Tag="#18212F" ToolTip="Czarny" Click="ColorButton_Click"/>
+                                <Button x:Name="ColorBlueButton" Background="#2563EB" Style="{StaticResource ColorButtonStyle}" Tag="#2563EB" ToolTip="Niebieski" Click="ColorButton_Click"/>
+                                <Button x:Name="ColorTealButton" Background="#0F766E" Style="{StaticResource ColorButtonStyle}" Tag="#0F766E" ToolTip="Zielony" Click="ColorButton_Click"/>
+                                <Button x:Name="ColorRoseButton" Background="#BE123C" Style="{StaticResource ColorButtonStyle}" Tag="#BE123C" ToolTip="Bordowy" Click="ColorButton_Click"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Grubość" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,12,0"/>
+                                <Button x:Name="PenSizeThinButton" Style="{StaticResource SizeButtonStyle}" Tag="2" ToolTip="Cienka" Click="PenSizeButton_Click">
+                                    <Ellipse Width="6" Height="6" Fill="{StaticResource InkTextBrush}"/>
+                                </Button>
+                                <Button x:Name="PenSizeSmallButton" Style="{StaticResource SizeButtonStyle}" Tag="3" ToolTip="Mała" Click="PenSizeButton_Click">
+                                    <Ellipse Width="9" Height="9" Fill="{StaticResource InkTextBrush}"/>
+                                </Button>
+                                <Button x:Name="PenSizeMediumButton" Style="{StaticResource SizeButtonStyle}" Tag="5" ToolTip="Średnia" Click="PenSizeButton_Click">
+                                    <Ellipse Width="12" Height="12" Fill="{StaticResource InkTextBrush}"/>
+                                </Button>
+                                <Button x:Name="PenSizeLargeButton" Style="{StaticResource SizeButtonStyle}" Tag="7" ToolTip="Gruba" Click="PenSizeButton_Click">
+                                    <Ellipse Width="15" Height="15" Fill="{StaticResource InkTextBrush}"/>
+                                </Button>
+                                <Button x:Name="PenSizeHugeButton" Style="{StaticResource SizeButtonStyle}" Tag="9" ToolTip="Bardzo gruba" Margin="0" Click="PenSizeButton_Click">
+                                    <Ellipse Width="18" Height="18" Fill="{StaticResource InkTextBrush}"/>
+                                </Button>
+                            </StackPanel>
+
+                            <Grid Grid.Column="4">
+                                <StackPanel x:Name="WriteActionPanel" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="Visible">
+                                    <Button Content="Wyczyść" Width="108" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="ClearButton_Click"/>
+                                    <Button Content="Zapisz" Width="124" Style="{StaticResource PrimaryButtonStyle}" Click="SaveButton_Click"/>
+                                </StackPanel>
+
+                                <StackPanel x:Name="WriteConfirmPanel" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="Collapsed">
+                                    <Button Content="Cofnij" Width="108" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="CancelSave_Click"/>
+                                    <Button Content="Potwierdź" Width="124" Style="{StaticResource PrimaryButtonStyle}" Background="#10B981" Click="ConfirmSave_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="TremorTestGrid" Visibility="Collapsed" Opacity="0">
+                    <Grid.RenderTransform>
+                        <TranslateTransform/>
+                    </Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <Grid.RowDefinition Height="Auto"/>
+                        <Grid.RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                        <Button Content="Wróć" Width="92" HorizontalAlignment="Left" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
+                        <TextBlock Text="Screening drżenia dłoni" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
+                    </DockPanel>
+
+                    <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="24"/>
-                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="280"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Kolor" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,12,0"/>
-                            <Button x:Name="ColorBlackButton" Background="#18212F" Style="{StaticResource ColorButtonStyle}" Tag="#18212F" ToolTip="Czarny" Click="ColorButton_Click"/>
-                            <Button x:Name="ColorBlueButton" Background="#2563EB" Style="{StaticResource ColorButtonStyle}" Tag="#2563EB" ToolTip="Niebieski" Click="ColorButton_Click"/>
-                            <Button x:Name="ColorTealButton" Background="#0F766E" Style="{StaticResource ColorButtonStyle}" Tag="#0F766E" ToolTip="Zielony" Click="ColorButton_Click"/>
-                            <Button x:Name="ColorRoseButton" Background="#BE123C" Style="{StaticResource ColorButtonStyle}" Tag="#BE123C" ToolTip="Bordowy" Click="ColorButton_Click"/>
-                        </StackPanel>
+                        <Border Grid.Column="0" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
+                            <Grid>
+                                <Canvas x:Name="TremorGuideCanvas" IsHitTestVisible="False" Opacity="0.7"/>
+                                <InkCanvas x:Name="TremorCanvas" Background="Transparent" StrokeCollected="TremorCanvas_StrokeCollected" PreviewMouseLeftButtonDown="SamplingCanvas_MouseLeftButtonDown" PreviewMouseLeftButtonUp="SamplingCanvas_MouseLeftButtonUp" MouseLeave="SamplingCanvas_MouseLeave"/>
+                                <TextBlock x:Name="TremorCanvasHint" Text="Narysuj szlaczek po jasnej linii" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
+                            </Grid>
+                        </Border>
 
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Grubość" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,12,0"/>
-                            <Button x:Name="PenSizeThinButton" Style="{StaticResource SizeButtonStyle}" Tag="2" ToolTip="Cienka" Click="PenSizeButton_Click">
-                                <Ellipse Width="6" Height="6" Fill="{StaticResource InkTextBrush}"/>
-                            </Button>
-                            <Button x:Name="PenSizeSmallButton" Style="{StaticResource SizeButtonStyle}" Tag="3" ToolTip="Mała" Click="PenSizeButton_Click">
-                                <Ellipse Width="9" Height="9" Fill="{StaticResource InkTextBrush}"/>
-                            </Button>
-                            <Button x:Name="PenSizeMediumButton" Style="{StaticResource SizeButtonStyle}" Tag="5" ToolTip="Średnia" Click="PenSizeButton_Click">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource InkTextBrush}"/>
-                            </Button>
-                            <Button x:Name="PenSizeLargeButton" Style="{StaticResource SizeButtonStyle}" Tag="7" ToolTip="Gruba" Click="PenSizeButton_Click">
-                                <Ellipse Width="15" Height="15" Fill="{StaticResource InkTextBrush}"/>
-                            </Button>
-                            <Button x:Name="PenSizeHugeButton" Style="{StaticResource SizeButtonStyle}" Tag="9" ToolTip="Bardzo gruba" Margin="0" Click="PenSizeButton_Click">
-                                <Ellipse Width="18" Height="18" Fill="{StaticResource InkTextBrush}"/>
-                            </Button>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="Wyczyść" Width="108" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="ClearButton_Click"/>
-                            <Button Content="Zapisz" Width="124" Style="{StaticResource PrimaryButtonStyle}" Click="SaveButton_Click"/>
-                        </StackPanel>
+                        <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="18" Margin="16,0,0,0">
+                            <StackPanel>
+                                <TextBlock x:Name="TremorStepText" Text="Szlaczek 1 z 5" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,10"/>
+                                <TextBlock x:Name="TremorInstructionText" Text="Prowadź długopis spokojnie po linii. Aplikacja zapisuje ruch kursora co około 10 ms." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20" Margin="0,0,0,14"/>
+                                <Button Content="Wyczyść próbę" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,10" Click="ClearTremorStep_Click"/>
+                                <Button x:Name="TremorNextButton" Content="Zapisz i dalej" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,16" Click="TremorNextButton_Click"/>
+                                <TextBlock Text="Wynik" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="TremorResultText" Text="Wykonaj wszystkie 5 szlaczków, żeby dostać ocenę stabilności." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20"/>
+                            </StackPanel>
+                        </Border>
                     </Grid>
-                </Border>
-            </Grid>
+                </Grid>
 
-            <!-- 3. TEST DRŻENIA -->
-            <Grid x:Name="TremorTestGrid" Visibility="Collapsed" Opacity="0">
-                <Grid.RenderTransform>
-                    <TranslateTransform/>
-                </Grid.RenderTransform>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                <Grid x:Name="GestureTestGrid" Visibility="Collapsed" Opacity="0">
+                    <Grid.RenderTransform>
+                        <TranslateTransform/>
+                    </Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <Grid.RowDefinition Height="Auto"/>
+                        <Window.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Window.RowDefinitions>
+                    </Grid.RowDefinitions>
 
-                <DockPanel Grid.Row="0" Margin="0,0,0,16">
-                    <Button Content="Wróć" Width="92" HorizontalAlignment="Left" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
-                    <TextBlock Text="Screening drżenia dłoni" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
-                </DockPanel>
+                    <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                        <Button Content="Wróć" Width="92" HorizontalAlignment="Left" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
+                        <TextBlock Text="Biometryczny test gestu" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
+                    </DockPanel>
 
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="280"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="280"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
-                        <Grid>
-                            <Canvas x:Name="TremorGuideCanvas" IsHitTestVisible="False" Opacity="0.7"/>
-                            <InkCanvas x:Name="TremorCanvas" Background="Transparent" StrokeCollected="TremorCanvas_StrokeCollected" PreviewMouseLeftButtonDown="SamplingCanvas_MouseLeftButtonDown" PreviewMouseLeftButtonUp="SamplingCanvas_MouseLeftButtonUp" MouseLeave="SamplingCanvas_MouseLeave"/>
-                            <TextBlock x:Name="TremorCanvasHint" Text="Narysuj szlaczek po jasnej linii" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
-                        </Grid>
-                    </Border>
+                        <Border Grid.Column="0" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
+                            <Grid>
+                                <Canvas x:Name="GestureGuideCanvas" Visibility="Collapsed"/>
+                                <InkCanvas x:Name="GestureCanvas" Background="Transparent" StrokeCollected="GestureCanvas_StrokeCollected" PreviewMouseLeftButtonDown="SamplingCanvas_MouseLeftButtonDown" PreviewMouseLeftButtonUp="SamplingCanvas_MouseLeftButtonUp" MouseLeave="SamplingCanvas_MouseLeave"/>
+                                <TextBlock x:Name="GestureCanvasHint" Text="Narysuj ten sam gest 3 razy" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
+                            </Grid>
+                        </Border>
 
-                    <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="18" Margin="16,0,0,0">
-                        <StackPanel>
-                            <TextBlock x:Name="TremorStepText" Text="Szlaczek 1 z 5" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,10"/>
-                            <TextBlock x:Name="TremorInstructionText" Text="Prowadź długopis spokojnie po linii. Aplikacja zapisuje ruch kursora co około 10 ms." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20" Margin="0,0,0,14"/>
-                            <Button Content="Wyczyść próbę" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,10" Click="ClearTremorStep_Click"/>
-                            <Button x:Name="TremorNextButton" Content="Zapisz i dalej" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,16" Click="TremorNextButton_Click"/>
-                            <TextBlock Text="Wynik" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,8"/>
-                            <TextBlock x:Name="TremorResultText" Text="Wykonaj wszystkie 5 szlaczków, żeby dostać ocenę stabilności." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20"/>
-                        </StackPanel>
+                        <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="18" Margin="16,0,0,0">
+                            <StackPanel>
+                                <TextBlock x:Name="GestureTrialText" Text="Próba 1 z 3" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,10"/>
+                                <TextBlock x:Name="GestureInstructionText" Text="Aplikacja wylosuje znak. Narysuj go 3 razy możliwie podobnym ruchem." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20" Margin="0,0,0,14"/>
+                                <Button Content="Wyczyść próbę" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,10" Click="ClearGestureTrial_Click"/>
+                                <Button x:Name="GestureNextButton" Content="Zapisz próbę" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,16" Click="GestureNextButton_Click"/>
+                                <TextBlock Text="Wynik" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="GestureResultText" Text="Wykonaj 3 powtórzenia gestu, żeby dostać ocenę biometrycznej powtarzalności." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="BrowseGrid" Visibility="Collapsed" Opacity="0">
+                    <Grid.RenderTransform>
+                        <TranslateTransform/>
+                    </Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,14">
+                        <Button Content="Wróć" Width="92" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
+                        <TextBlock Text="Zapisane podpisy" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <TextBlock Grid.Row="1" Text="Kliknij miniaturę, aby zobaczyć podpis w powiększeniu." FontSize="14" Margin="2,0,5,14" Foreground="{StaticResource MutedTextBrush}"/>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <WrapPanel x:Name="SignaturesPanel" ItemWidth="210" ItemHeight="154" HorizontalAlignment="Left"/>
+                    </ScrollViewer>
+                </Grid>
+
+                <Grid x:Name="DetailGrid" Visibility="Collapsed" Opacity="0">
+                    <Grid.RenderTransform>
+                        <TranslateTransform/>
+                    </Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                        <Button Content="Do przeglądarki" Width="136" Style="{StaticResource BackButtonStyle}" Margin="0,0,10,0" Click="BackToBrowse_Click"/>
+                        <Button Content="Menu" Width="92" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="14" Effect="{StaticResource SoftShadow}">
+                        <Image x:Name="DetailImage" Stretch="Uniform"/>
                     </Border>
                 </Grid>
             </Grid>
 
-            <!-- 4. TEST GESTU -->
-            <Grid x:Name="GestureTestGrid" Visibility="Collapsed" Opacity="0">
-                <Grid.RenderTransform>
-                    <TranslateTransform/>
-                </Grid.RenderTransform>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <Grid x:Name="ResultPopupOverlay" Visibility="Collapsed" Background="#5018212F">
+                <Border Background="White" CornerRadius="16" Width="460" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="28" Effect="{StaticResource SoftShadow}">
+                    <StackPanel>
+                        <Ellipse Width="48" Height="48" Fill="#E7EEF6" HorizontalAlignment="Center" Margin="0,0,0,16">
+                        </Ellipse>
+                        <TextBlock x:Name="PopupTitleText" Text="Analiza Ukończona" FontSize="22" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,14" HorizontalAlignment="Center"/>
 
-                <DockPanel Grid.Row="0" Margin="0,0,0,16">
-                    <Button Content="Wróć" Width="92" HorizontalAlignment="Left" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
-                    <TextBlock Text="Biometryczny test gestu" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
-                </DockPanel>
+                        <Border Background="#F8FAFC" CornerRadius="10" Padding="16" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Margin="0,0,0,22">
+                            <TextBlock x:Name="PopupBodyText" Text="Szczegóły..." FontSize="14" LineHeight="22" TextWrapping="Wrap" Foreground="{StaticResource InkTextBrush}"/>
+                        </Border>
 
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="280"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="10" Effect="{StaticResource SoftShadow}">
-                        <Grid>
-                            <Canvas x:Name="GestureGuideCanvas" Visibility="Collapsed"/>
-                            <InkCanvas x:Name="GestureCanvas" Background="Transparent" StrokeCollected="GestureCanvas_StrokeCollected" PreviewMouseLeftButtonDown="SamplingCanvas_MouseLeftButtonDown" PreviewMouseLeftButtonUp="SamplingCanvas_MouseLeftButtonUp" MouseLeave="SamplingCanvas_MouseLeave"/>
-                            <TextBlock x:Name="GestureCanvasHint" Text="Narysuj ten sam gest 3 razy" IsHitTestVisible="False" Foreground="#A7B3C4" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="12" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="18" Margin="16,0,0,0">
-                        <StackPanel>
-                            <TextBlock x:Name="GestureTrialText" Text="Próba 1 z 3" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,10"/>
-                            <TextBlock x:Name="GestureInstructionText" Text="Aplikacja wylosuje znak. Narysuj go 3 razy możliwie podobnym ruchem." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20" Margin="0,0,0,14"/>
-                            <Button Content="Wyczyść próbę" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,10" Click="ClearGestureTrial_Click"/>
-                            <Button x:Name="GestureNextButton" Content="Zapisz próbę" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,16" Click="GestureNextButton_Click"/>
-                            <TextBlock Text="Wynik" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource InkTextBrush}" Margin="0,0,0,8"/>
-                            <TextBlock x:Name="GestureResultText" Text="Wykonaj 3 powtórzenia gestu, żeby dostać ocenę biometrycznej powtarzalności." TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}" LineHeight="20"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Grid>
-
-            <!-- 5. PRZEGLĄDARKA -->
-            <Grid x:Name="BrowseGrid" Visibility="Collapsed" Opacity="0">
-                <Grid.RenderTransform>
-                    <TranslateTransform/>
-                </Grid.RenderTransform>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <DockPanel Grid.Row="0" Margin="0,0,0,14">
-                    <Button Content="Wróć" Width="92" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
-                    <TextBlock Text="Zapisane podpisy" FontSize="24" FontWeight="Bold" Foreground="{StaticResource InkTextBrush}" HorizontalAlignment="Right"/>
-                </DockPanel>
-                <TextBlock Grid.Row="1" Text="Kliknij miniaturę, aby zobaczyć podpis w powiększeniu." FontSize="14" Margin="2,0,5,14" Foreground="{StaticResource MutedTextBrush}"/>
-
-                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                    <WrapPanel x:Name="SignaturesPanel" ItemWidth="210" ItemHeight="154" HorizontalAlignment="Left"/>
-                </ScrollViewer>
-            </Grid>
-
-            <!-- 6. SZCZEGÓŁY -->
-            <Grid x:Name="DetailGrid" Visibility="Collapsed" Opacity="0">
-                <Grid.RenderTransform>
-                    <TranslateTransform/>
-                </Grid.RenderTransform>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-                    <Button Content="Do przeglądarki" Width="136" Style="{StaticResource BackButtonStyle}" Margin="0,0,10,0" Click="BackToBrowse_Click"/>
-                    <Button Content="Menu" Width="92" Style="{StaticResource BackButtonStyle}" Click="BackToMenu_Click"/>
-                </StackPanel>
-
-                <Border Grid.Row="1" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="White" Padding="14" Effect="{StaticResource SoftShadow}">
-                    <Image x:Name="DetailImage" Stretch="Uniform"/>
+                        <Button Content="Rozumiem" Width="140" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Center" Click="ClosePopup_Click"/>
+                    </StackPanel>
                 </Border>
             </Grid>
         </Grid>
-    </Grid>
 </Window>

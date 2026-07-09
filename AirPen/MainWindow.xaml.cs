@@ -55,6 +55,7 @@ namespace AirPen
         // ==========================================
         private void ShowWriteGrid_Click(object sender, RoutedEventArgs e)
         {
+            ResetWriteButtons();
             ShowView(WriteGrid);
             SignatureCanvas.Strokes.Clear();
             UpdateCanvasHint();
@@ -91,14 +92,8 @@ namespace AirPen
         }
 
         // ==========================================
-        // LOGIKA ZAPISU (Wycinanie białego tła i centrowanie)
+        // NOWA LOGIKA POTWIERDZENIA ZAPISU (BEZ POPUPU)
         // ==========================================
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
-        {
-            SignatureCanvas.Strokes.Clear();
-            UpdateCanvasHint();
-        }
-
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             if (SignatureCanvas.Strokes.Count == 0)
@@ -107,10 +102,19 @@ namespace AirPen
                 return;
             }
 
-            MessageBoxResult result = MessageBox.Show("Czy na pewno chcesz zapisać ten podpis?", "Potwierdzenie zapisu", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            // Podmiana przycisków w prawym dolnym rogu na Potwierdź / Cofnij
+            WriteActionPanel.Visibility = Visibility.Collapsed;
+            WriteConfirmPanel.Visibility = Visibility.Visible;
+        }
 
-            if (result != MessageBoxResult.Yes) return;
+        private void CancelSave_Click(object sender, RoutedEventArgs e)
+        {
+            // Powrót do standardowych przycisków akcji
+            ResetWriteButtons();
+        }
 
+        private void ConfirmSave_Click(object sender, RoutedEventArgs e)
+        {
             try
             {
                 if (!Directory.Exists(folderPath))
@@ -144,13 +148,27 @@ namespace AirPen
                     encoder.Save(fileStream);
                 }
 
-                MessageBox.Show("Podpis został wycięty i zapisany!", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+                ResetWriteButtons();
                 BackToMenu_Click(null, null);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Błąd zapisu: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                ResetWriteButtons();
             }
+        }
+
+        private void ResetWriteButtons()
+        {
+            WriteConfirmPanel.Visibility = Visibility.Collapsed;
+            WriteActionPanel.Visibility = Visibility.Visible;
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            SignatureCanvas.Strokes.Clear();
+            ResetWriteButtons();
+            UpdateCanvasHint();
         }
 
         // ==========================================
@@ -384,6 +402,7 @@ namespace AirPen
         {
             if (sender is not Border border || border.RenderTransform is not ScaleTransform transform) return;
 
+            // Płynna animacja najechania myszką na podpis w bazie
             Duration duration = new Duration(TimeSpan.FromMilliseconds(140));
             DoubleAnimation animation = new DoubleAnimation(scale, duration)
             {
@@ -395,7 +414,7 @@ namespace AirPen
         }
 
         // ==========================================
-        // TEST DRŻENIA (Tremor Test)
+        // TEST DRŻENIA (Z MODALNYM POPUPEM WYNIKÓW)
         // ==========================================
         private void ClearTremorStep_Click(object sender, RoutedEventArgs e)
         {
@@ -457,7 +476,7 @@ namespace AirPen
         }
 
         // ==========================================
-        // TEST GESTU (Gesture Test)
+        // TEST GESTU (Z MODALNYM POPUPEM WYNIKÓW)
         // ==========================================
         private void ClearGestureTrial_Click(object sender, RoutedEventArgs e)
         {
@@ -512,8 +531,76 @@ namespace AirPen
         }
 
         // ==========================================
-        // ALGORYTMY BIOMETRYCZNE I METODY POMOCNICZE
+        // ALGORYTMY BIOMETRYCZNE Z NOWYMI POPUPAMI
         // ==========================================
+        private void ClosePopup_Click(object sender, RoutedEventArgs e)
+        {
+            ResultPopupOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        private void AnalyzeTremorTest()
+        {
+            List<MotionMetrics> metrics = tremorStepSamples.Select(CalculateMetrics).ToList();
+            double averageJitter = metrics.Average(m => m.Jitter);
+            double averageSpeedInstability = metrics.Average(m => m.SpeedInstability);
+            double averageTurns = metrics.Average(m => m.DirectionNoise);
+
+            double penalty = Math.Clamp(averageJitter * 5.0 + averageSpeedInstability * 50.0 + averageTurns * 20.0, 0, 100);
+            double stabilityScore = 100 - penalty;
+
+            string level = stabilityScore >= 80 ? "bardzo wysoka" : stabilityScore >= 45 ? "przeciętna" : "niska";
+            string conclusion = stabilityScore >= 80
+                ? "Ruch jest pewny, płynny i celowy. Doskonała stabilność."
+                : stabilityScore >= 45
+                    ? "Zauważono lekkie wahania na zakrętach lub zmiany tempa."
+                    : "Wykryto bardzo silne mikrodrżenia i przypadkowe szarpnięcia. Ruch mocno zaburzony.";
+
+            string formattedText = $"Wskaźnik stabilności dłoni: {stabilityScore:0}/100 ({level}).\n\n" +
+                                   $"• Mikrofalowanie: {averageJitter:0.0} px\n" +
+                                   $"• Niestabilność prędkości: {averageSpeedInstability:P0}\n" +
+                                   $"• Szarpnięcia toru: {averageTurns:0.0}\n\n" +
+                                   $"{conclusion}";
+
+            // Aktualizacja panelu bocznego
+            TremorResultText.Text = formattedText;
+
+            // Wyświetlenie pięknego autorskiego Popupa modalnego
+            PopupTitleText.Text = " Screening Drżenia Dłoni";
+            PopupBodyText.Text = formattedText;
+            ResultPopupOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void AnalyzeGestureTest()
+        {
+            List<MotionMetrics> metrics = gestureTrialSamples.Select(CalculateMetrics).ToList();
+            double lengthCv = CoefficientOfVariation(metrics.Select(m => m.PathLength));
+            double durationCv = CoefficientOfVariation(metrics.Select(m => m.DurationMs));
+            double speedCv = CoefficientOfVariation(metrics.Select(m => m.AverageSpeed));
+            double jitterCv = CoefficientOfVariation(metrics.Select(m => m.Jitter));
+
+            double mismatch = lengthCv * 0.35 + durationCv * 0.30 + speedCv * 0.35 + jitterCv * 0.20;
+            double consistency = Math.Clamp(100 - (mismatch * 250), 0, 100);
+
+            string level = consistency >= 85 ? "wysoka" : consistency >= 50 ? "średnia" : "bardzo niska";
+            string conclusion = consistency == 0
+                ? "To nie jest powtarzalny podpis, tylko losowe ruchy. Brak spójnych cech biometrycznych."
+                : "Test ukończony pomyślnie. Profil dynamiczny zapisany w strukturze behawioralnej.";
+
+            string formattedText = $"Spójność biometryczna gestu: {consistency:0}/100 ({level}).\n\n" +
+                                   $"• Rozbieżność długości ścieżki: {lengthCv:P0}\n" +
+                                   $"• Rozbieżność czasu wykonania: {durationCv:P0}\n" +
+                                   $"• Odchył tempa pisania: {speedCv:P0}\n\n" +
+                                   $"{conclusion}";
+
+            // Aktualizacja panelu bocznego
+            GestureResultText.Text = formattedText;
+
+            // Wyświetlenie pięknego autorskiego Popupa modalnego
+            PopupTitleText.Text = " Powtarzalność Dynamiczna";
+            PopupBodyText.Text = formattedText;
+            ResultPopupOverlay.Visibility = Visibility.Visible;
+        }
+
         private void ShowView(UIElement targetView)
         {
             UIElement[] views = { MenuGrid, WriteGrid, TremorTestGrid, GestureTestGrid, BrowseGrid, DetailGrid };
@@ -543,48 +630,6 @@ namespace AirPen
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
-        }
-
-        private void AnalyzeTremorTest()
-        {
-            List<MotionMetrics> metrics = tremorStepSamples.Select(CalculateMetrics).ToList();
-            double averageJitter = metrics.Average(m => m.Jitter);
-            double averageSpeedInstability = metrics.Average(m => m.SpeedInstability);
-            double averageTurns = metrics.Average(m => m.DirectionNoise);
-
-            double penalty = Math.Clamp(averageJitter * 5.0 + averageSpeedInstability * 50.0 + averageTurns * 20.0, 0, 100);
-            double stabilityScore = 100 - penalty;
-
-            string level = stabilityScore >= 80 ? "bardzo wysoka" : stabilityScore >= 45 ? "przeciętna" : "niska";
-            string conclusion = stabilityScore >= 80
-                ? "Ruch jest pewny, płynny i celowy. Doskonała stabilność."
-                : stabilityScore >= 45
-                    ? "Zauważono lekkie wahania na zakrętach lub zmiany tempa."
-                    : "Wykryto bardzo silne mikrodrżenia i przypadkowe szarpnięcia. Ruch mocno zaburzony.";
-
-            TremorResultText.Text =
-                $"Wskaźnik stabilności dłoni: {stabilityScore:0}/100 ({level}).\n" +
-                $"Mikrofalowanie: {averageJitter:0.0} px, niestabilność prędkości: {averageSpeedInstability:P0}, szarpnięcia: {averageTurns:0.0}.\n\n" +
-                $"{conclusion}";
-        }
-
-        private void AnalyzeGestureTest()
-        {
-            List<MotionMetrics> metrics = gestureTrialSamples.Select(CalculateMetrics).ToList();
-            double lengthCv = CoefficientOfVariation(metrics.Select(m => m.PathLength));
-            double durationCv = CoefficientOfVariation(metrics.Select(m => m.DurationMs));
-            double speedCv = CoefficientOfVariation(metrics.Select(m => m.AverageSpeed));
-            double jitterCv = CoefficientOfVariation(metrics.Select(m => m.Jitter));
-
-            double mismatch = lengthCv * 0.35 + durationCv * 0.30 + speedCv * 0.35 + jitterCv * 0.20;
-            double consistency = Math.Clamp(100 - (mismatch * 250), 0, 100);
-
-            string level = consistency >= 85 ? "wysoka" : consistency >= 50 ? "średnia" : "bardzo niska";
-
-            GestureResultText.Text =
-                $"Spójność biometryczna gestu: {consistency:0}/100 ({level}).\n" +
-                $"Różnice: Długość {lengthCv:P0}, Czas {durationCv:P0}, Tempo {speedCv:P0}.\n\n" +
-                (consistency == 0 ? "To nie jest powtarzalny podpis, tylko losowe ruchy. Brak cech biometrycznych." : "Test udany. Analiza dynamiki zapisana.");
         }
 
         private MotionMetrics CalculateMetrics(List<MotionPoint> samples)
