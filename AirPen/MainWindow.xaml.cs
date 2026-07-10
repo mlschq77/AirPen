@@ -214,19 +214,19 @@
                 GestureCanvasHint.Visibility = GestureCanvas.Strokes.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            private void UpdateDrawingAttributes()
+        private void UpdateDrawingAttributes()
+        {
+            SignatureCanvas.DefaultDrawingAttributes = new System.Windows.Ink.DrawingAttributes
             {
-                SignatureCanvas.DefaultDrawingAttributes = new System.Windows.Ink.DrawingAttributes
-                {
-                    Color = currentPenColor,
-                    Width = currentPenSize,
-                    Height = currentPenSize,
-                    FitToCurve = true,
-                    StylusTip = System.Windows.Ink.StylusTip.Ellipse
-                };
-            }
+                Color = currentPenColor,
+                Width = currentPenSize + 2,
+                Height = currentPenSize + 2,
+                FitToCurve = true,
+                StylusTip = System.Windows.Ink.StylusTip.Ellipse
+            };
+        }
 
-            private void UpdateSelectedColorButton(Button selectedButton)
+        private void UpdateSelectedColorButton(Button selectedButton)
             {
                 Button[] buttons = { ColorBlackButton, ColorBlueButton, ColorTealButton, ColorRoseButton };
 
@@ -308,22 +308,22 @@
                 activeSamplingCanvas = null;
             }
 
-            private void ConfigureTestCanvas(InkCanvas canvas, Color color)
+        private void ConfigureTestCanvas(InkCanvas canvas, Color color)
+        {
+            canvas.DefaultDrawingAttributes = new System.Windows.Ink.DrawingAttributes
             {
-                canvas.DefaultDrawingAttributes = new System.Windows.Ink.DrawingAttributes
-                {
-                    Color = color,
-                    Width = 3,
-                    Height = 3,
-                    FitToCurve = false,
-                    StylusTip = System.Windows.Ink.StylusTip.Ellipse
-                };
-            }
+                Color = color,
+                Width = 5,
+                Height = 5,
+                FitToCurve = false,
+                StylusTip = System.Windows.Ink.StylusTip.Ellipse
+            };
+        }
 
-            // ==========================================
-            // LOGIKA PRZEGLĄDARKI
-            // ==========================================
-            private void LoadSavedSignatures()
+        // ==========================================
+        // LOGIKA PRZEGLĄDARKI
+        // ==========================================
+        private void LoadSavedSignatures()
             {
                 SignaturesPanel.Children.Clear();
 
